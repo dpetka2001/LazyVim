@@ -234,6 +234,23 @@ function M.dedup(list)
   return ret
 end
 
+-- Deduplicates a list of tables based on the first element of the table
+---@generic T
+---@param list T[]
+---@return T[]
+function M.dedup_list_tbl(list)
+  local ret = {}
+  local seen = {}
+  for _, v in ipairs(list) do
+    local key = v[1]
+    if not seen[key] then
+      table.insert(ret, v)
+      seen[key] = true
+    end
+  end
+  return ret
+end
+
 M.CREATE_UNDO = vim.api.nvim_replace_termcodes("<c-G>u", true, true, true)
 function M.create_undo()
   if vim.api.nvim_get_mode().mode == "i" then

@@ -180,6 +180,7 @@ M.remote_patterns = {
 ---@param remote string
 function M.get_url(remote)
   local ret = remote
+  M.remote_patterns = LazyVim.dedup_list_tbl(vim.list_extend(M.remote_patterns, vim.g.lazygit_remote_patterns or {}))
   for _, pattern in ipairs(M.remote_patterns) do
     ret = ret:gsub(pattern[1], pattern[2])
   end
