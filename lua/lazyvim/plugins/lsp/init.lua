@@ -1,3 +1,18 @@
+local get_lsp2p = (function()
+  local lsp2p = nil
+  return function()
+    if lsp2p == nil then
+      if vim.fn.has("nvim-0.11") == 1 then
+        lsp2p = require("mason-lspconfig.mappings").get_mason_map().lspconfig_to_package
+      else
+        lsp2p = require("mason-lspconfig.mappings.server").lspconfig_to_package
+      end
+    end
+
+    return lsp2p
+  end
+end)()
+
 return {
   -- lspconfig
   {
@@ -8,7 +23,9 @@ return {
       {
         "mason-org/mason-lspconfig.nvim",
         version = vim.fn.has("nvim-0.11") == 0 and "1.32.0" or false,
-        config = function() end,
+        config = function()
+          vim.schedule(get_lsp2p)
+        end,
       },
     },
     opts = function()
@@ -195,10 +212,8 @@ return {
       -- get all the servers that are available through mason-lspconfig
       local have_mason, mlsp = pcall(require, "mason-lspconfig")
       local all_mslp_servers = {}
-      if have_mason and vim.fn.has("nvim-0.11") == 1 then
-        all_mslp_servers = vim.tbl_keys(require("mason-lspconfig.mappings").get_mason_map().lspconfig_to_package)
-      elseif have_mason then
-        all_mslp_servers = vim.tbl_keys(require("mason-lspconfig.mappings.server").lspconfig_to_package)
+      if have_mason then
+        all_mslp_servers = vim.tbl_keys(get_lsp2p())
       end
 
       local exclude_automatic_enable = {} ---@type string[]
@@ -325,8 +340,4 @@ return {
       end)
     end,
   },
-
-  -- pin to v1 for now
-  { "mason-org/mason.nvim", version = "^1.0.0" },
-  { "mason-org/mason-lspconfig.nvim", version = "^1.0.0" },
 }
